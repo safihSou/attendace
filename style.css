@@ -1,0 +1,318 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', '微软雅黑', 'SimSun', '宋体', Arial, sans-serif;
+    background-color: #f5f5f5;
+    padding: 20px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    font-weight: 600;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #3498db;
+}
+
+h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+    font-size: 1.4em;
+    font-weight: 500;
+}
+
+.input-section {
+    margin-bottom: 40px;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.2em;
+}
+
+textarea {
+    width: 100%;
+    padding: 18px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    resize: vertical;
+    font-family: 'Consolas', 'Microsoft YaHei', monospace;
+    min-height: 200px;
+    line-height: 1.5;
+    transition: all 0.3s;
+    background: white;
+}
+
+textarea:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.input-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 15px;
+    color: #555;
+}
+
+.input-info span {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.input-info button {
+    background-color: #e74c3c;
+    padding: 8px 20px;
+    font-size: 14px;
+    margin-top: 0;
+    border-radius: 4px;
+}
+
+.input-info button:hover {
+    background-color: #c0392b;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.button-group button {
+    flex: 1;
+    min-width: 180px;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Microsoft YaHei', sans-serif;
+}
+
+.primary-btn {
+    background-color: #3498db;
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.secondary-btn {
+    background-color: #27ae60;
+    color: white;
+}
+
+.secondary-btn:hover {
+    background-color: #229954;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+}
+
+.warning-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.warning-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+.preview-section {
+    margin-top: 40px;
+    padding: 25px;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    background: #f8f9fa;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.student-card {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.student-card:hover {
+    transform: translateX(10px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-color: #3498db;
+}
+
+.student-photo {
+    width: 90px;
+    height: 115px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 25px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+    padding: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.student-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.student-info {
+    flex: 1;
+}
+
+.student-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.student-id {
+    font-size: 16px;
+    color: #666;
+    font-family: 'Consolas', monospace;
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.total-count {
+    background: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 16px;
+    min-width: 80px;
+    text-align: center;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 18px;
+    border-radius: 6px;
+    margin-top: 20px;
+    border: 1px solid #c3e6cb;
+    font-size: 15px;
+    font-weight: 500;
+    transition: opacity 0.3s;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 18px;
+    border-radius: 6px;
+    margin-top: 20px;
+    border: 1px solid #f5c6cb;
+    font-size: 15px;
+    font-weight: 500;
+    transition: opacity 0.3s;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .student-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .student-photo {
+        margin-right: 0;
+        margin-bottom: 15px;
+        width: 120px;
+        height: 150px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    .button-group button {
+        min-width: 100%;
+    }
+    
+    .input-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .input-info button {
+        align-self: flex-end;
+    }
+}
