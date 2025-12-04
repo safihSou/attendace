@@ -185,8 +185,11 @@ async function generatePDFWithBackend(absentIds) {
     try {
         showSuccess('正在生成PDF，请稍候...');
         
+        // FIXED: Changed from localhost:5000 to your PythonAnywhere URL
+        const backendUrl = 'https://anawahd2.eu.pythonanywhere.com';
+        
         // Send request to Flask backend
-        const response = await fetch('http://localhost:5000/generate-pdf', {
+        const response = await fetch(`${backendUrl}/generate-pdf`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
