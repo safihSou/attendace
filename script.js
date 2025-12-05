@@ -49,17 +49,33 @@ function setupEventListeners() {
 function processInput() {
     const input = document.getElementById('absentIds').value;
     
+    // Debug: log what we're receiving
+    console.log("Raw input:", input);
+    
     // Support both line breaks and commas - with WeChat format cleaning
     const absentIds = input.split(/[\n,]/)
         .map(id => {
-            // Clean WeChat format: remove "1- ", "2. ", "1) " etc from beginning
-            return id
-                .replace(/^\s*\d+\s*[\.\-\)、]\s*/, '')  // Remove "1- ", "2. ", "3) "
-                .replace(/^\s*\d+\s*-\s*/, '')          // Remove "1 - "
-                .replace(/^\s*\d+\s*/, '')              // Remove "1 "
-                .trim();
+            console.log("Original line:", id);
+            
+            // First, remove any number at the start with punctuation
+            let cleaned = id.replace(/^\s*\d+\s*[\.\-\)]\s*/, '');
+            console.log("After first clean:", cleaned);
+            
+            // If nothing was removed by first pattern, try other patterns
+            if (cleaned === id.trim()) {
+                cleaned = cleaned.replace(/^\s*\d+\s*-\s*/, '');
+                console.log("After second clean:", cleaned);
+            }
+            
+            // Remove any leading/trailing spaces
+            cleaned = cleaned.trim();
+            console.log("Final cleaned:", cleaned);
+            
+            return cleaned;
         })
         .filter(id => id !== '' && /^\d{9}$/.test(id));
+    
+    console.log("Filtered IDs:", absentIds);
     
     // Update counter - fix the display text
     document.getElementById('idCount').textContent = `已输入 ${absentIds.length} 个学号`;
