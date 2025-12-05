@@ -31,6 +31,37 @@
         .warning-btn {
             background-color: #e74c3c;
         }
+        
+        .helper-btn {
+            background-color: #f39c12;
+        }
+        
+        .input-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .helper-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .helper-buttons button {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        
+        .format-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -38,12 +69,22 @@
         <h1>南京航空航天大学 - 缺勤学生报告生成器</h1>
         
         <div class="input-section">
-            <label for="absentIds">输入缺勤学生学号（每行一个或逗号分隔）：</label>
-            <textarea id="absentIds" rows="8" placeholder="例如：&#10;192464216&#10;192464215&#10;192461101"></textarea>
+            <label for="absentIds">输入缺勤学生学号（支持多种格式）：</label>
+            <textarea id="absentIds" rows="8" placeholder="支持以下格式：&#10;1- 192464216&#10;2- 192464215&#10;3- 192461101&#10;&#10;或：&#10;192464216&#10;192464215&#10;192461101&#10;&#10;或：&#10;192464216,192464215,192461101"></textarea>
+            <div class="format-hint">可以直接粘贴从微信群笔记复制的带编号格式 (如: 1- 学号)</div>
             
             <div class="input-info">
                 <span id="idCount">已输入 0 个学号</span>
-                <button type="button" onclick="clearInput()" class="warning-btn">清空所有</button>
+                <div>
+                    <button type="button" onclick="cleanWeChatFormat()" class="helper-btn">清理WeChat格式</button>
+                    <button type="button" onclick="clearInput()" class="warning-btn">清空所有</button>
+                </div>
+            </div>
+            
+            <div class="helper-buttons">
+                <button type="button" onclick="convertToComma()">转换为逗号分隔</button>
+                <button type="button" onclick="convertToLines()">转换为每行一个</button>
+                <button type="button" onclick="removeDuplicates()">去除重复学号</button>
             </div>
             
             <div class="button-group">
@@ -76,6 +117,333 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // 处理WeChat笔记格式的清理函数
+        function cleanWeChatFormat() {
+            const textarea = document.getElementById('absentIds');
+            let text = textarea.value;
+            
+            if (!text.trim()) {
+                alert('请输入内容');
+                return;
+            }
+            
+            // 记录清理前的行数
+            const originalLines = text.split('\n').filter(line => line.trim().length > 0);
+            
+            // 清理WeChat格式: 移除行首的编号 (如: 1- , 2. , 3) , 1 - 等)
+            const cleanedLines = text.split('\n')
+                .map(line => {
+                    // 移除行首的数字和后面的标点符号
+                    let cleanedLine = line
+                        .replace(/^\s*\d+\s*[\.\-\)、]\s*/, '')  // 移除 "1- ", "2. ", "3) ", "1、"
+                        .replace(/^\s*\d+\s*-\s*/, '')          // 移除 "1 - "
+                        .replace(/^\s*\d+\s*/, '')              // 移除 "1 "
+                        .trim();
+                    
+                    return cleanedLine;
+                })
+                .filter(line => line.length > 0);  // 移除空行
+            
+            // 更新文本框内容
+            textarea.value = cleanedLines.join('\n');
+            
+            // 更新计数
+            updateIdCount();
+            
+            // 显示清理结果反馈
+            const removed = originalLines.length - cleanedLines.length;
+            if (removed > 0) {
+                alert(`已清理 WeChat 格式！\n清理前: ${originalLines.length} 行\n清理后: ${cleanedLines.length} 个有效学号\n移除了 ${removed} 个编号项`);
+            } else {
+                alert('未检测到WeChat格式，已保留原始内容');
+            }
+        }
+        
+        // 转换为逗号分隔
+        function convertToComma() {
+            const textarea = document.getElementById('absentIds');
+            let text = textarea.value;
+            
+            if (!text.trim()) {
+                alert('请输入内容');
+                return;
+            }
+            
+            // 先清理WeChat格式
+            const ids = processInput(); // 使用现有的处理函数
+            
+            // 转换为逗号分隔
+            textarea.value = ids.join(',');
+            
+            updateIdCount();
+        }
+        
+        // 转换为每行一个
+        function convertToLines() {
+            const textarea = document.getElementById('absentIds');
+            let text = textarea.value;
+            
+            if (!text.trim()) {
+                alert('请输入内容');
+                return;
+            }
+            
+            // 处理输入，获取ID数组
+            const ids = processInput();
+            
+            // 转换为每行一个
+            textarea.value = ids.join('\n');
+            
+            updateIdCount();
+        }
+        
+        // 去除重复学号
+        function removeDuplicates() {
+            const textarea = document.getElementById('absentIds');
+            let text = textarea.value;
+            
+            if (!text.trim()) {
+                alert('请输入内容');
+                return;
+            }
+            
+            // 处理输入，获取ID数组
+            const ids = processInput();
+            
+            // 去除重复
+            const uniqueIds = [...new Set(ids)];
+            
+            // 更新文本框
+            textarea.value = uniqueIds.join('\n');
+            
+            updateIdCount();
+            
+            const removedCount = ids.length - uniqueIds.length;
+            if (removedCount > 0) {
+                alert(`已去除 ${removedCount} 个重复学号\n当前剩余 ${uniqueIds.length} 个唯一学号`);
+            } else {
+                alert('未发现重复学号');
+            }
+        }
+        
+        // 修改原有的 processInput 函数，增强处理能力
+        function processInput() {
+            const textarea = document.getElementById('absentIds');
+            const rawText = textarea.value.trim();
+            
+            if (!rawText) {
+                return [];
+            }
+            
+            // 先按换行分割，然后处理每行
+            const lines = rawText.split('\n');
+            const studentIds = [];
+            
+            for (let line of lines) {
+                // 清理每行的内容
+                let cleanedLine = line
+                    .replace(/^\s*\d+\s*[\.\-\)、]\s*/, '')  // 移除WeChat格式编号
+                    .replace(/^\s*\d+\s*-\s*/, '')
+                    .replace(/^\s*\d+\s*/, '')
+                    .trim();
+                
+                if (!cleanedLine) continue;
+                
+                // 检查是否是逗号分隔的多个ID
+                if (cleanedLine.includes(',')) {
+                    const commaIds = cleanedLine.split(',')
+                        .map(id => id.trim())
+                        .filter(id => id.length > 0);
+                    studentIds.push(...commaIds);
+                } else {
+                    studentIds.push(cleanedLine);
+                }
+            }
+            
+            // 过滤掉可能剩余的纯数字编号或无效内容
+            const validIds = studentIds.filter(id => {
+                // 假设学号至少为6位数字，且不是纯标点符号
+                return /^\d{6,}$/.test(id) || (id.length >= 3 && /[a-zA-Z0-9]/.test(id));
+            });
+            
+            return validIds;
+        }
+        
+        // 修改 updateIdCount 函数
+        function updateIdCount() {
+            const ids = processInput();
+            const countElement = document.getElementById('idCount');
+            countElement.textContent = `已输入 ${ids.length} 个学号`;
+            
+            // 如果有学号，添加样式提示
+            if (ids.length > 0) {
+                countElement.style.color = '#27ae60';
+                countElement.style.fontWeight = 'bold';
+            } else {
+                countElement.style.color = '';
+                countElement.style.fontWeight = '';
+            }
+        }
+        
+        // 修改 clearInput 函数
+        function clearInput() {
+            if (confirm('确定要清空所有输入吗？')) {
+                document.getElementById('absentIds').value = '';
+                updateIdCount();
+                document.getElementById('preview').style.display = 'none';
+            }
+        }
+        
+        // 修改 showPreview 函数
+        function showPreview(ids) {
+            const preview = document.getElementById('preview');
+            const previewContent = document.getElementById('previewContent');
+            const previewTotal = document.getElementById('previewTotal');
+            
+            if (ids.length === 0) {
+                alert('请输入有效的学号');
+                return;
+            }
+            
+            previewTotal.textContent = `${ids.length} 人`;
+            
+            // 生成预览内容
+            let html = '<div class="preview-list">';
+            ids.forEach((id, index) => {
+                html += `
+                    <div class="preview-item">
+                        <span class="preview-index">${index + 1}.</span>
+                        <span class="preview-id">${id}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            previewContent.innerHTML = html;
+            preview.style.display = 'block';
+            
+            // 滚动到预览区域
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 修改 generatePDF 函数
+        function generatePDF() {
+            const ids = processInput();
+            
+            if (ids.length === 0) {
+                alert('请输入有效的学号');
+                return;
+            }
+            
+            // 设置PDF日期
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
+            document.getElementById('pdfDate').textContent = dateStr;
+            
+            // 生成PDF内容
+            const pdfContent = document.getElementById('pdfStudentsList');
+            let html = '<div style="margin: 20px 0;">';
+            
+            // 每行显示3个学号
+            for (let i = 0; i < ids.length; i += 3) {
+                html += '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">';
+                for (let j = 0; j < 3 && i + j < ids.length; j++) {
+                    html += `
+                        <div style="flex: 1; text-align: center; padding: 8px; border-bottom: 1px solid #eee;">
+                            <span style="font-size: 14pt;">${ids[i + j]}</span>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+            
+            pdfContent.innerHTML = html;
+            document.getElementById('pdfTotalCount').textContent = ids.length;
+            
+            // 生成PDF
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin: [15, 15],
+                filename: `缺勤学生名单_${dateStr.replace(/[ :]/g, '-')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+        
+        // 添加输入监听，实时更新计数
+        document.getElementById('absentIds').addEventListener('input', updateIdCount);
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', updateIdCount);
+        
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + F 清理WeChat格式
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                cleanWeChatFormat();
+            }
+            // Ctrl + Enter 生成PDF
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                generatePDF();
+            }
+        });
+        
+        // 添加样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .preview-list {
+                max-height: 400px;
+                overflow-y: auto;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 10px;
+                background: #f9f9f9;
+            }
+            
+            .preview-item {
+                display: flex;
+                align-items: center;
+                padding: 8px 10px;
+                margin: 5px 0;
+                background: white;
+                border-radius: 4px;
+                border-left: 4px solid #3498db;
+            }
+            
+            .preview-index {
+                font-weight: bold;
+                color: #3498db;
+                margin-right: 15px;
+                min-width: 30px;
+            }
+            
+            .preview-id {
+                font-family: monospace;
+                font-size: 16px;
+            }
+            
+            .helper-btn:hover {
+                background-color: #d68910;
+            }
+            
+            button {
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            
+            button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
