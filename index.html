@@ -39,7 +39,7 @@
         
         <div class="input-section">
             <label for="absentIds">输入缺勤学生学号（每行一个或逗号分隔）：</label>
-            <textarea id="absentIds" rows="8" placeholder="例如：&#10;192464216&#10;192464215&#10;192461101&#10;&#10;或从WeChat粘贴：&#10;1- 192464216&#10;2- 192464215&#10;3- 192461101"></textarea>
+            <textarea id="absentIds" rows="8" placeholder="例如：&#10;192464216&#10;192464215&#10;192461101"></textarea>
             
             <div class="input-info">
                 <span id="idCount">已输入 0 个学号</span>
@@ -76,134 +76,6 @@
         </div>
     </div>
 
-    <script>
-        // 修改原有的 processInput 函数，添加WeChat格式处理
-        function processInput() {
-            const textarea = document.getElementById('absentIds');
-            const rawText = textarea.value.trim();
-            
-            if (!rawText) {
-                return [];
-            }
-            
-            // 按换行分割
-            const lines = rawText.split('\n');
-            const studentIds = [];
-            
-            for (let line of lines) {
-                // 清理每行的WeChat格式编号 (如: "1- ", "2. ", "3) ", "1 - " 等)
-                let cleanedLine = line
-                    .replace(/^\s*\d+\s*[\.\-\)、]\s*/, '')  // 移除 "1- ", "2. ", "3) ", "1、"
-                    .replace(/^\s*\d+\s*-\s*/, '')          // 移除 "1 - "
-                    .replace(/^\s*\d+\s*/, '')              // 移除 "1 "
-                    .trim();
-                
-                if (!cleanedLine) continue;
-                
-                // 检查是否是逗号分隔的多个ID
-                if (cleanedLine.includes(',')) {
-                    const commaIds = cleanedLine.split(',')
-                        .map(id => id.trim())
-                        .filter(id => id.length > 0);
-                    studentIds.push(...commaIds);
-                } else {
-                    studentIds.push(cleanedLine);
-                }
-            }
-            
-            return studentIds;
-        }
-        
-        // 保持原有的 updateIdCount 函数
-        function updateIdCount() {
-            const ids = processInput();
-            document.getElementById('idCount').textContent = `已输入 ${ids.length} 个学号`;
-        }
-        
-        // 保持原有的 clearInput 函数
-        function clearInput() {
-            if (confirm('确定要清空所有输入吗？')) {
-                document.getElementById('absentIds').value = '';
-                updateIdCount();
-                document.getElementById('preview').style.display = 'none';
-            }
-        }
-        
-        // 保持原有的 showPreview 函数
-        function showPreview(ids) {
-            const preview = document.getElementById('preview');
-            const previewContent = document.getElementById('previewContent');
-            const previewTotal = document.getElementById('previewTotal');
-            
-            if (ids.length === 0) {
-                alert('请输入有效的学号');
-                return;
-            }
-            
-            previewTotal.textContent = `${ids.length} 人`;
-            
-            let html = '';
-            ids.forEach((id, index) => {
-                html += `<div>${index + 1}. ${id}</div>`;
-            });
-            
-            previewContent.innerHTML = html;
-            preview.style.display = 'block';
-        }
-        
-        // 保持原有的 generatePDF 函数
-        function generatePDF() {
-            const ids = processInput();
-            
-            if (ids.length === 0) {
-                alert('请输入有效的学号');
-                return;
-            }
-            
-            // 设置PDF日期
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-            document.getElementById('pdfDate').textContent = dateStr;
-            
-            // 生成PDF内容
-            const pdfContent = document.getElementById('pdfStudentsList');
-            let html = '<div style="margin: 20px 0;">';
-            
-            // 每行显示3个学号
-            for (let i = 0; i < ids.length; i += 3) {
-                html += '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">';
-                for (let j = 0; j < 3 && i + j < ids.length; j++) {
-                    html += `
-                        <div style="flex: 1; text-align: center; padding: 8px; border-bottom: 1px solid #eee;">
-                            <span style="font-size: 14pt;">${ids[i + j]}</span>
-                        </div>
-                    `;
-                }
-                html += '</div>';
-            }
-            html += '</div>';
-            
-            pdfContent.innerHTML = html;
-            document.getElementById('pdfTotalCount').textContent = ids.length;
-            
-            // 生成PDF
-            const element = document.getElementById('pdfContent');
-            const opt = {
-                margin: [15, 15],
-                filename: `缺勤学生名单_${dateStr.replace(/[ :]/g, '-')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            
-            html2pdf().set(opt).from(element).save();
-        }
-        
-        // 添加输入监听，实时更新计数
-        document.getElementById('absentIds').addEventListener('input', updateIdCount);
-        
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', updateIdCount);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
