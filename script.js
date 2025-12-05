@@ -49,9 +49,16 @@ function setupEventListeners() {
 function processInput() {
     const input = document.getElementById('absentIds').value;
     
-    // Support both line breaks and commas
+    // Support both line breaks and commas - with WeChat format cleaning
     const absentIds = input.split(/[\n,]/)
-        .map(id => id.trim())
+        .map(id => {
+            // Clean WeChat format: remove "1- ", "2. ", "1) " etc from beginning
+            return id
+                .replace(/^\s*\d+\s*[\.\-\)、]\s*/, '')  // Remove "1- ", "2. ", "3) "
+                .replace(/^\s*\d+\s*-\s*/, '')          // Remove "1 - "
+                .replace(/^\s*\d+\s*/, '')              // Remove "1 "
+                .trim();
+        })
         .filter(id => id !== '' && /^\d{9}$/.test(id));
     
     // Update counter - fix the display text
